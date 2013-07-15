@@ -220,21 +220,26 @@ class API_2cnnct_API
 
 		// Decode response
 		$json = json_decode($response);
-		if (!is_object($json))
+		if ( ! is_object($json))
 		{
+			unset($response);
 			throw new API_2cnnct_CallException(500, 'Invalid API response format');
 		}
-		else if (property_exists($json, 'error') && $json->error)
+		else
 		{
-			throw new API_2cnnct_CallException(
-				property_exists($json, 'errorCode') ? $json->errorCode : 500,
-				property_exists($json, 'errorMessage') ? $json->errorMessage : 'Error',
-				property_exists($json, 'errorTrace') ? $json->errorTrace : null
-			);
-		}
-		else if (!property_exists($json, 'result'))
-		{
-			throw new API_2cnnct_CallException(500, 'Invalid API response format');
+			unset($response);
+			if (property_exists($json, 'error') && $json->error)
+			{
+				throw new API_2cnnct_CallException(
+					property_exists($json, 'errorCode') ? $json->errorCode : 500,
+					property_exists($json, 'errorMessage') ? $json->errorMessage : 'Error',
+					property_exists($json, 'errorTrace') ? $json->errorTrace : null
+				);
+			}
+			else if ( ! property_exists($json, 'result'))
+			{
+				throw new API_2cnnct_CallException(500, 'Invalid API response format');
+			}
 		}
 
 		// Return result
@@ -337,19 +342,24 @@ class API_2cnnct_API
 		$json = json_decode($response);
 		if ( ! is_object($json))
 		{
+			unset($response);
 			throw new API_2cnnct_CallException(500, 'Invalid API response format');
 		}
-		elseif (property_exists($json, 'error') && $json->error)
+		else
 		{
-			throw new API_2cnnct_CallException(
-				property_exists($json, 'errorCode') ? $json->errorCode : 500,
-				property_exists($json, 'errorMessage') ? $json->errorMessage : 'Error',
-				property_exists($json, 'errorTrace') ? $json->errorTrace : null
-			);
-		}
-		elseif ( ! property_exists($json, 'result'))
-		{
-			throw new API_2cnnct_CallException(500, 'Invalid API response format');
+			unset($response);
+			if (property_exists($json, 'error') && $json->error)
+			{
+				throw new API_2cnnct_CallException(
+					property_exists($json, 'errorCode') ? $json->errorCode : 500,
+					property_exists($json, 'errorMessage') ? $json->errorMessage : 'Error',
+					property_exists($json, 'errorTrace') ? $json->errorTrace : null
+				);
+			}
+			elseif ( ! property_exists($json, 'result'))
+			{
+				throw new API_2cnnct_CallException(500, 'Invalid API response format');
+			}
 		}
 
 		// Return result
