@@ -68,7 +68,7 @@ class API_2cnnct_FileCache implements API_2cnnct_Cache
 	protected function cacheKey($cacheName)
 	{
 		$hash = sha1($cacheName);
-		return substr($hash, 0, 2) . '/' . $hash;
+		return substr($hash, 0, 2) . '/' . $hash . '.txt';
 	}
 
 	/**

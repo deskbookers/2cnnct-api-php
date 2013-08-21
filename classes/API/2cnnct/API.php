@@ -176,6 +176,22 @@ class API_2cnnct_API
 	public function post(array $data, $uri, array $uriParams = null)
 	{
 		// Call method and convert
+		if (class_exists('Kohana_Profiler'))
+		{
+			$token = Profiler::start('2cnnct API', 'POST ' . $uri);
+			try
+			{
+				$r = $this->convert($this->post_($data, $uri, $uriParams));
+				Profiler::stop($token);
+				return $r;
+			}
+			catch (Exception $e)
+			{
+				Profiler::stop($token);
+				throw $e;
+			}
+		}
+
 		return $this->convert($this->post_($data, $uri, $uriParams));
 	}
 	
@@ -220,21 +236,26 @@ class API_2cnnct_API
 
 		// Decode response
 		$json = json_decode($response);
-		if (!is_object($json))
+		if ( ! is_object($json))
 		{
+			unset($response);
 			throw new API_2cnnct_CallException(500, 'Invalid API response format');
 		}
-		else if (property_exists($json, 'error') && $json->error)
+		else
 		{
-			throw new API_2cnnct_CallException(
-				property_exists($json, 'errorCode') ? $json->errorCode : 500,
-				property_exists($json, 'errorMessage') ? $json->errorMessage : 'Error',
-				property_exists($json, 'errorTrace') ? $json->errorTrace : null
-			);
-		}
-		else if (!property_exists($json, 'result'))
-		{
-			throw new API_2cnnct_CallException(500, 'Invalid API response format');
+			unset($response);
+			if (property_exists($json, 'error') && $json->error)
+			{
+				throw new API_2cnnct_CallException(
+					property_exists($json, 'errorCode') ? $json->errorCode : 500,
+					property_exists($json, 'errorMessage') ? $json->errorMessage : 'Error',
+					property_exists($json, 'errorTrace') ? $json->errorTrace : null
+				);
+			}
+			else if ( ! property_exists($json, 'result'))
+			{
+				throw new API_2cnnct_CallException(500, 'Invalid API response format');
+			}
 		}
 
 		// Return result
@@ -291,6 +312,24 @@ class API_2cnnct_API
 	public function get(array $fields, $uri, array $uriParams = null, array $data = null)
 	{
 		// Call method and convert
+		if (class_exists('Kohana_Profiler'))
+		{
+			$__data = [];
+			foreach ( (array) $data as $key => $val) if (strpos($key, '$') === 0) $__data[$key] = $val;
+			$token = Profiler::start('2cnnct API', 'GET ' . $uri . ' ' . json_encode($__data));
+			try
+			{
+				$r = $this->convert($this->get_($fields, $uri, $uriParams, $data));
+				Profiler::stop($token);
+				return $r;
+			}
+			catch (Exception $e)
+			{
+				Profiler::stop($token);
+				throw $e;
+			}
+		}
+
 		return $this->convert($this->get_($fields, $uri, $uriParams, $data));
 	}
 
@@ -337,19 +376,24 @@ class API_2cnnct_API
 		$json = json_decode($response);
 		if ( ! is_object($json))
 		{
+			unset($response);
 			throw new API_2cnnct_CallException(500, 'Invalid API response format');
 		}
-		elseif (property_exists($json, 'error') && $json->error)
+		else
 		{
-			throw new API_2cnnct_CallException(
-				property_exists($json, 'errorCode') ? $json->errorCode : 500,
-				property_exists($json, 'errorMessage') ? $json->errorMessage : 'Error',
-				property_exists($json, 'errorTrace') ? $json->errorTrace : null
-			);
-		}
-		elseif ( ! property_exists($json, 'result'))
-		{
-			throw new API_2cnnct_CallException(500, 'Invalid API response format');
+			unset($response);
+			if (property_exists($json, 'error') && $json->error)
+			{
+				throw new API_2cnnct_CallException(
+					property_exists($json, 'errorCode') ? $json->errorCode : 500,
+					property_exists($json, 'errorMessage') ? $json->errorMessage : 'Error',
+					property_exists($json, 'errorTrace') ? $json->errorTrace : null
+				);
+			}
+			elseif ( ! property_exists($json, 'result'))
+			{
+				throw new API_2cnnct_CallException(500, 'Invalid API response format');
+			}
 		}
 
 		// Return result
