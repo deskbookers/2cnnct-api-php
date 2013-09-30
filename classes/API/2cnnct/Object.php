@@ -1,4 +1,4 @@
-<?php defined('SYSPATH') OR die('No direct script access.');
+<?php
 
 /**
  * 2cnnct API Object
@@ -143,6 +143,6 @@ class API_2cnnct_Object implements IteratorAggregate, JsonSerializable, Countabl
 	 */
 	public function has($key)
 	{
-		return array_key_exists($key, $this->data_);
+		return $this->data_ !== null && array_key_exists($key, $this->data_);
 	}
 }
