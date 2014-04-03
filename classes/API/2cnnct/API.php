@@ -119,6 +119,69 @@ class API_2cnnct_API
 	}
 
 	/**
+	 * Get login URL for reseller collection
+	 *
+	 * @param string $apiHost
+	 * @param int $resellerCollectionId
+	 * @param string $returnUrl
+	 * @param int $apiVersion
+	 * @param string $locale
+	 * @return string Login URL
+	 */
+	static public function getLoginUrlForResellerCollection($apiHost, $resellerCollectionId, $returnUrl, $apiVersion = 1, $locale = null)
+	{
+
+		// Prepare data
+		$data = [
+			'resellerCollectionID' => json_encode( (int) $resellerCollectionId),
+			'returnUrl' => json_encode( (string) $returnUrl),
+		];
+		$data['__i18n'] = json_encode($locale);
+		if (is_callable('Logger::longo') && Logger::longo())
+		{
+			$data['__longo'] = json_encode(Logger::longo()->tags());
+		}
+
+		// URI
+		$uri = '/api/v' . $apiVersion . '/getLoginResellerCollectionUrl?' . http_build_query($data);
+
+		// Make request through curl
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_URL, 'https://' . $apiHost . $uri);
+		curl_setopt($ch, CURLOPT_HTTPGET, true);
+		$response = curl_exec($ch);
+		curl_close($ch);
+
+		// Decode response
+		$json = json_decode($response);
+		if ( ! is_object($json))
+		{
+			unset($response);
+			throw new API_2cnnct_CallException(500, 'Invalid API response format');
+		}
+		else
+		{
+			unset($response);
+			if (property_exists($json, 'error') && $json->error)
+			{
+				throw new API_2cnnct_CallException(
+					property_exists($json, 'errorCode') ? $json->errorCode : 500,
+					property_exists($json, 'errorMessage') ? $json->errorMessage : 'Error',
+					property_exists($json, 'errorTrace') ? $json->errorTrace : null
+				);
+			}
+			elseif ( ! property_exists($json, 'result'))
+			{
+				throw new API_2cnnct_CallException(500, 'Invalid API response format');
+			}
+		}
+
+		// Return result
+		return $json->result;
+	}
+
+	/**
 	 * Build check data
 	 * 
 	 * Build check data for a method, timestamp and URI.
