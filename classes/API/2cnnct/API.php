@@ -351,8 +351,8 @@ class API_2cnnct_API
 		}
 
 		// Cache name
-		$cacheName = $this->buildUri($uri, $uriParams) . '(' . json_encode($fields) . ')(' . json_encode($data) . ')';
-
+		$cacheName = $this->resellerID_ . '-' . $this->buildUri($uri, $uriParams) . '(' . json_encode($fields) . ')(' . json_encode($data) . ')';
+		
 		// Has cache?
 		if ($cache->hasCache($cacheName, $lifetime))
 		{
