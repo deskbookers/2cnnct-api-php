@@ -305,6 +305,9 @@ class API_2cnnct_API
 		$json = json_decode($response);
 		if ( ! is_object($json))
 		{
+			Logger::error(tr('Invalid API response format'), null, [
+				'response' => $response,
+			]);
 			unset($response);
 			throw new API_2cnnct_CallException(500, 'Invalid API response format');
 		}
