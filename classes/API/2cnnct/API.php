@@ -453,6 +453,11 @@ class API_2cnnct_API
 			'Authenticate: ' . $this->publicKey_ . ':' . $this->buildCheckHash('GET', $timestamp, $uri, []),
 		));
 		$response = curl_exec($ch);
+		$curlError = null;
+		if ($response === false)
+		{
+			$curlError = curl_error($ch);
+		}
 		curl_close($ch);
 
 		// Decode response
@@ -461,6 +466,7 @@ class API_2cnnct_API
 		{
 			Logger::error(tr('Invalid API response format'), null, [
 				'response' => $response,
+				'curlError' => $curlError,
 			]);
 			unset($response);
 			throw new API_2cnnct_CallException(500, 'Invalid API response format');
