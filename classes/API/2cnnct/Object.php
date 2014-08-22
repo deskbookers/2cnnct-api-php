@@ -101,6 +101,19 @@ class API_2cnnct_Object implements IteratorAggregate, JsonSerializable, Countabl
 	}
 
 	/**
+	 * Set
+	 * 
+	 * @param string $key
+	 * @param mixed $value
+	 * @return This
+	 */
+	public function set($key, $value)
+	{
+		$this->data_[$key] = $value;
+		return $this;
+	}
+
+	/**
 	 * Get or default
 	 * 
 	 * @param string $key
@@ -122,6 +135,17 @@ class API_2cnnct_Object implements IteratorAggregate, JsonSerializable, Countabl
 	public function __get($key)
 	{
 		return $this->get($key);
+	}
+
+	/**
+	 * __set
+	 * 
+	 * @param string $key
+	 * @param mixed $value
+	 */
+	public function __set($key, $value)
+	{
+		$this->set($key, $value);
 	}
 
 	/**
