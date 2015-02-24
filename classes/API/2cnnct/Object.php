@@ -25,11 +25,46 @@ class API_2cnnct_Object implements IteratorAggregate, JsonSerializable, Countabl
 	/**
 	 * To array
 	 * 
+	 * @param bool $deep
 	 * @return array
 	 */
-	public function toArray()
+	public function toArray($deep = false)
 	{
+		if ($deep)
+		{
+			return static::toArrayDeep( (array) $this->data_);
+		}
 		return (array) $this->data_;
+	}
+
+	/**
+	 * To array deep
+	 * 
+	 * @param mixed $data
+	 * @return mixed
+	 */
+	protected static function toArrayDeep($data)
+	{
+		if (is_object($data))
+		{
+			if ($data instanceof API_2cnnct_Object)
+			{
+				return $data->toArray(true);
+			}
+			else
+			{
+				return static::toArrayDeep( (array) $data);
+			}
+		}
+		else if (is_array($data))
+		{
+			foreach ($data as $k => $v)
+			{
+				$data[$k] = static::toArrayDeep($v);
+			}
+			return $data;
+		}
+		return $data;
 	}
 
 	/**
