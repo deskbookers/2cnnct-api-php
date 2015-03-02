@@ -34,6 +34,7 @@ class API_2cnnct_Object implements IteratorAggregate, JsonSerializable, Countabl
 		{
 			return static::toArrayDeep( (array) $this->data_);
 		}
+		
 		return (array) $this->data_;
 	}
 
