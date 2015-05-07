@@ -16,6 +16,23 @@ class API_2cnnct_API
 	static protected $instance_ = null;
 
 	/**
+	 * Verify peer
+	 * 
+	 * @var bool
+	 */
+	static protected $verifyPeer = true;
+
+	/**
+	 * Set verify peer
+	 * 
+	 * @param bool $value
+	 */
+	public static function setVerifyPeer($value)
+	{
+		static::$verifyPeer = (bool) $value;
+	}
+
+	/**
 	 * Instance
 	 * 
 	 * @param API_2cnnct_API $instance
@@ -119,6 +136,18 @@ class API_2cnnct_API
 	}
 
 	/**
+	 * Prepare curl
+	 * 
+	 * @return cURL resource
+	 */
+	static protected function prepareCurl()
+	{
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, static::$verifyPeer);
+		return $ch;
+	}
+
+	/**
 	 * Get login URL for reseller collection
 	 *
 	 * @param string $apiHost
@@ -146,7 +175,7 @@ class API_2cnnct_API
 		$uri = '/api/v' . $apiVersion . '/getLoginResellerCollectionUrl?' . http_build_query($data);
 
 		// Make request through curl
-		$ch = curl_init();
+		$ch = static::prepareCurl();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_URL, 'https://' . $apiHost . $uri);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
@@ -295,7 +324,7 @@ class API_2cnnct_API
 		$query = http_build_query($data);
 
 		// Make request through curl
-		$ch = curl_init();
+		$ch = static::prepareCurl();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_URL, 'https://' . $this->apiHost_ . $uri);
 		curl_setopt($ch, CURLOPT_POST, true);
@@ -444,7 +473,7 @@ class API_2cnnct_API
 		if (!empty($query)) $uri .= '?' . $query;
 
 		// Make request through curl
-		$ch = curl_init();
+		$ch = static::prepareCurl();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_URL, 'https://' . $this->apiHost_ . $uri);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
