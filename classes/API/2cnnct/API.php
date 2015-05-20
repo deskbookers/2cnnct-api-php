@@ -119,6 +119,18 @@ class API_2cnnct_API
 	}
 
 	/**
+	 * Set locale
+	 * 
+	 * @param string $locale
+	 * @return This
+	 */
+	public function setLocale($locale)
+	{
+		$this->locale_ = (string) $locale;
+		return $this;
+	}
+
+	/**
 	 * Factory
 	 * 
 	 * @param string $publicKey
