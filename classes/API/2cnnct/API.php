@@ -189,7 +189,7 @@ class API_2cnnct_API
 		// Make request through curl
 		$ch = static::prepareCurl();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_URL, 'https://' . $apiHost . $uri);
+		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($apiHost, $ch) . $uri);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
 		$response = curl_exec($ch);
 		$statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -201,7 +201,7 @@ class API_2cnnct_API
 		{
 			Logger::error(tr('Invalid API response format'), null, [
 				'response' => $response,
-				'url' => 'https://' . $apiHost . $uri,
+				'url' => static::prepareApiHost($apiHost) . $uri,
 				'status' => $statusCode,
 			]);
 			unset($response);
@@ -222,7 +222,7 @@ class API_2cnnct_API
 			{
 				Logger::error(tr('Invalid API response format'), null, [
 					'json' => $json,
-					'url' => 'https://' . $apiHost . $uri,
+					'url' => static::prepareApiHost($apiHost) . $uri,
 					'status' => $statusCode,
 				]);
 				throw new API_2cnnct_CallException(500, 'Invalid API response format');
@@ -231,6 +231,30 @@ class API_2cnnct_API
 
 		// Return result
 		return $json->result;
+	}
+
+	/**
+	 * Map API host
+	 * 
+	 * @param string $host
+	 * @param resource $ch
+	 */
+	public static function prepareApiHost($host, $ch = null)
+	{
+		$mapping = Arr::get( (array) Kohana::$config->load('api.hostMappings'), $host);
+		if ($mapping)
+		{
+			if (strpos($mapping, '://') === false)
+			{
+				$mapping = 'https://' . $mapping;
+			}
+			if ($ch)
+			{
+				curl_setopt($ch, CURLOPT_HTTPHEADER, ['Host: ' . $host]);
+			}
+			return $mapping;
+		}
+		return 'https://' . $host;
 	}
 
 	/**
@@ -351,7 +375,7 @@ class API_2cnnct_API
 		// Make request through curl
 		$ch = static::prepareCurl();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_URL, 'https://' . $this->apiHost_ . $uri);
+		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($this->apiHost_, $ch) . $uri);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
@@ -368,7 +392,7 @@ class API_2cnnct_API
 		{
 			Logger::error(tr('Invalid API response format'), null, [
 				'response' => $response,
-				'url' => 'https://' . $this->apiHost_ . $uri,
+				'url' => static::prepareApiHost($this->apiHost_) . $uri,
 				'status' => $statusCode,
 			]);
 			unset($response);
@@ -389,7 +413,7 @@ class API_2cnnct_API
 			{
 				Logger::error(tr('Invalid API response format'), null, [
 					'json' => $json,
-					'url' => 'https://' . $this->apiHost_ . $uri,
+					'url' => static::prepareApiHost($this->apiHost_) . $uri,
 					'status' => $statusCode,
 				]);
 				throw new API_2cnnct_CallException(500, 'Invalid API response format');
@@ -505,7 +529,7 @@ class API_2cnnct_API
 		// Make request through curl
 		$ch = static::prepareCurl();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_URL, 'https://' . $this->apiHost_ . $uri);
+		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($this->apiHost_, $ch) . $uri);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 			'Timestamp: ' . ($timestamp = time()),
@@ -525,7 +549,7 @@ class API_2cnnct_API
 		if ( ! is_object($json))
 		{
 			Logger::error(tr('Invalid API response format'), null, [
-				'url' => 'https://' . $this->apiHost_ . $uri,
+				'url' => static::prepareApiHost($this->apiHost_) . $uri,
 				'response' => $response,
 				'curlError' => $curlError,
 				'status' => $statusCode,
@@ -548,7 +572,7 @@ class API_2cnnct_API
 			{
 				Logger::error(tr('Invalid API response format'), null, [
 					'json' => $json,
-					'url' => 'https://' . $this->apiHost_ . $uri,
+					'url' => static::prepareApiHost($this->apiHost_) . $uri,
 					'status' => $statusCode,
 				]);
 				throw new API_2cnnct_CallException(500, 'Invalid API response format');
