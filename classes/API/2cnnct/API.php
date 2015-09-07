@@ -237,10 +237,16 @@ class API_2cnnct_API
 	 * Map API host
 	 * 
 	 * @param string $host
+	 * @param array $headers
 	 * @param resource $ch
 	 */
-	public static function prepareApiHost($host, $ch = null)
+	public static function prepareApiHost($host, $ch = null, array& $headers = null)
 	{
+		if ($headers === null)
+		{
+			$headers = [];
+		}
+
 		$mapping = Arr::get( (array) Kohana::$config->load('api.hostMappings'), $host);
 		if ($mapping)
 		{
@@ -248,12 +254,17 @@ class API_2cnnct_API
 			{
 				$mapping = 'https://' . $mapping;
 			}
+
+			$headers[] = 'Host: ' . $host;
+
 			if ($ch)
 			{
-				curl_setopt($ch, CURLOPT_HTTPHEADER, ['Host: ' . $host]);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 			}
+
 			return $mapping;
 		}
+
 		return 'https://' . $host;
 	}
 
@@ -375,13 +386,13 @@ class API_2cnnct_API
 		// Make request through curl
 		$ch = static::prepareCurl();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($this->apiHost_, $ch) . $uri);
+		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($this->apiHost_, $ch, $headers) . $uri);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		curl_setopt($ch, CURLOPT_HTTPHEADER, Arr::merge($headers, [
 			'Timestamp: ' . ($timestamp = time()),
 			'Authenticate: ' . $this->publicKey_ . ':' . $this->buildCheckHash('POST', $timestamp, $uri, $data),
-		));
+		]));
 		$response = curl_exec($ch);
 		$statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		curl_close($ch);
@@ -529,12 +540,12 @@ class API_2cnnct_API
 		// Make request through curl
 		$ch = static::prepareCurl();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($this->apiHost_, $ch) . $uri);
+		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($this->apiHost_, $ch, $headers) . $uri);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		curl_setopt($ch, CURLOPT_HTTPHEADER, Arr::merge($headers, [
 			'Timestamp: ' . ($timestamp = time()),
 			'Authenticate: ' . $this->publicKey_ . ':' . $this->buildCheckHash('GET', $timestamp, $uri, []),
-		));
+		]));
 		$response = curl_exec($ch);
 		$curlError = null;
 		if ($response === false)
