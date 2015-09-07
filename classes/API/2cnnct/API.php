@@ -192,6 +192,7 @@ class API_2cnnct_API
 		curl_setopt($ch, CURLOPT_URL, 'https://' . $apiHost . $uri);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
 		$response = curl_exec($ch);
+		$statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		curl_close($ch);
 
 		// Decode response
@@ -200,6 +201,8 @@ class API_2cnnct_API
 		{
 			Logger::error(tr('Invalid API response format'), null, [
 				'response' => $response,
+				'url' => 'https://' . $apiHost . $uri,
+				'status' => $statusCode,
 			]);
 			unset($response);
 			throw new API_2cnnct_CallException(500, 'Invalid API response format');
@@ -219,6 +222,8 @@ class API_2cnnct_API
 			{
 				Logger::error(tr('Invalid API response format'), null, [
 					'json' => $json,
+					'url' => 'https://' . $apiHost . $uri,
+					'status' => $statusCode,
 				]);
 				throw new API_2cnnct_CallException(500, 'Invalid API response format');
 			}
@@ -346,6 +351,7 @@ class API_2cnnct_API
 			'Authenticate: ' . $this->publicKey_ . ':' . $this->buildCheckHash('POST', $timestamp, $uri, $data),
 		));
 		$response = curl_exec($ch);
+		$statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		curl_close($ch);
 
 		// Decode response
@@ -354,6 +360,8 @@ class API_2cnnct_API
 		{
 			Logger::error(tr('Invalid API response format'), null, [
 				'response' => $response,
+				'url' => 'https://' . $this->apiHost_ . $uri,
+				'status' => $statusCode,
 			]);
 			unset($response);
 			throw new API_2cnnct_CallException(500, 'Invalid API response format');
@@ -373,6 +381,8 @@ class API_2cnnct_API
 			{
 				Logger::error(tr('Invalid API response format'), null, [
 					'json' => $json,
+					'url' => 'https://' . $this->apiHost_ . $uri,
+					'status' => $statusCode,
 				]);
 				throw new API_2cnnct_CallException(500, 'Invalid API response format');
 			}
@@ -499,6 +509,7 @@ class API_2cnnct_API
 		{
 			$curlError = curl_error($ch);
 		}
+		$statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		curl_close($ch);
 
 		// Decode response
@@ -506,8 +517,10 @@ class API_2cnnct_API
 		if ( ! is_object($json))
 		{
 			Logger::error(tr('Invalid API response format'), null, [
+				'url' => 'https://' . $this->apiHost_ . $uri,
 				'response' => $response,
 				'curlError' => $curlError,
+				'status' => $statusCode,
 			]);
 			unset($response);
 			throw new API_2cnnct_CallException(500, 'Invalid API response format');
@@ -527,6 +540,8 @@ class API_2cnnct_API
 			{
 				Logger::error(tr('Invalid API response format'), null, [
 					'json' => $json,
+					'url' => 'https://' . $this->apiHost_ . $uri,
+					'status' => $statusCode,
 				]);
 				throw new API_2cnnct_CallException(500, 'Invalid API response format');
 			}
