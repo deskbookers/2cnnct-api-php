@@ -274,7 +274,15 @@ class API_2cnnct_API
 	{
 		foreach ( (array) $uriParams as $key => $value)
 		{
-			if (strlen($value) == 0) throw new Exception('Invalid uri param \'' . $key . '\' given, can not be empty');
+			if (strlen($value) == 0)
+			{
+				throw new Exception('Invalid uri param \'' . $key . '\' given, can not be empty');
+			}
+
+			// Prepare value for proper url encoding
+			$value = rawurlencode($value);
+			$value = str_replace(['%2F', '%5C'], ['/', '\\'], $value);
+
 			$uri = str_replace('<' . $key . '>', $value, $uri);
 		}
 		return $uri;
