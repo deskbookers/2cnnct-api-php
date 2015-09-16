@@ -192,17 +192,18 @@ class API_2cnnct_API
 		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($apiHost, $ch) . $uri);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
 		$response = curl_exec($ch);
-		$statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$curlInfo = curl_getinfo($ch);
 		curl_close($ch);
 
 		// Decode response
 		$json = json_decode($response);
 		if ( ! is_object($json))
 		{
+			ksort($curlInfo);
 			Logger::error(tr('Invalid API response format'), null, [
 				'response' => $response,
 				'url' => static::prepareApiHost($apiHost) . $uri,
-				'status' => $statusCode,
+				'curlInfo' => $curlInfo,
 			]);
 			unset($response);
 			throw new API_2cnnct_CallException(500, 'Invalid API response format');
@@ -218,12 +219,13 @@ class API_2cnnct_API
 					property_exists($json, 'errorTrace') ? $json->errorTrace : null
 				);
 			}
-			elseif ( ! property_exists($json, 'result'))
+			else if ( ! property_exists($json, 'result'))
 			{
+				ksort($curlInfo);
 				Logger::error(tr('Invalid API response format'), null, [
 					'json' => $json,
 					'url' => static::prepareApiHost($apiHost) . $uri,
-					'status' => $statusCode,
+					'curlInfo' => $curlInfo,
 				]);
 				throw new API_2cnnct_CallException(500, 'Invalid API response format');
 			}
@@ -394,17 +396,18 @@ class API_2cnnct_API
 			'Authenticate: ' . $this->publicKey_ . ':' . $this->buildCheckHash('POST', $timestamp, $uri, $data),
 		]));
 		$response = curl_exec($ch);
-		$statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$curlInfo = curl_getinfo($ch);
 		curl_close($ch);
 
 		// Decode response
 		$json = json_decode($response);
 		if ( ! is_object($json))
 		{
+			ksort($curlInfo);
 			Logger::error(tr('Invalid API response format'), null, [
 				'response' => $response,
 				'url' => static::prepareApiHost($this->apiHost_) . $uri,
-				'status' => $statusCode,
+				'curlInfo' => $curlInfo,
 			]);
 			unset($response);
 			throw new API_2cnnct_CallException(500, 'Invalid API response format');
@@ -422,10 +425,11 @@ class API_2cnnct_API
 			}
 			else if ( ! property_exists($json, 'result'))
 			{
+				ksort($curlInfo);
 				Logger::error(tr('Invalid API response format'), null, [
 					'json' => $json,
 					'url' => static::prepareApiHost($this->apiHost_) . $uri,
-					'status' => $statusCode,
+					'curlInfo' => $curlInfo,
 				]);
 				throw new API_2cnnct_CallException(500, 'Invalid API response format');
 			}
@@ -552,18 +556,19 @@ class API_2cnnct_API
 		{
 			$curlError = curl_error($ch);
 		}
-		$statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$curlInfo = curl_getinfo($ch);
 		curl_close($ch);
 
 		// Decode response
 		$json = json_decode($response);
 		if ( ! is_object($json))
 		{
+			ksort($curlInfo);
 			Logger::error(tr('Invalid API response format'), null, [
 				'url' => static::prepareApiHost($this->apiHost_) . $uri,
 				'response' => $response,
 				'curlError' => $curlError,
-				'status' => $statusCode,
+				'curlInfo' => $curlInfo,
 			]);
 			unset($response);
 			throw new API_2cnnct_CallException(500, 'Invalid API response format');
@@ -579,12 +584,13 @@ class API_2cnnct_API
 					property_exists($json, 'errorTrace') ? $json->errorTrace : null
 				);
 			}
-			elseif ( ! property_exists($json, 'result'))
+			else if ( ! property_exists($json, 'result'))
 			{
+				ksort($curlInfo);
 				Logger::error(tr('Invalid API response format'), null, [
 					'json' => $json,
 					'url' => static::prepareApiHost($this->apiHost_) . $uri,
-					'status' => $statusCode,
+					'curlInfo' => $curlInfo,
 				]);
 				throw new API_2cnnct_CallException(500, 'Invalid API response format');
 			}
@@ -611,7 +617,7 @@ class API_2cnnct_API
 			}
 			return $array;
 		}
-		elseif (is_object($data))
+		else if (is_object($data))
 		{
 			$object = array();
 			foreach ($data as $key => $val)
