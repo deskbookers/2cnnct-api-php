@@ -23,6 +23,16 @@ class API_2cnnct_Object implements IteratorAggregate, JsonSerializable, Countabl
 	protected $data_ = null;
 
 	/**
+	 * Debug info
+	 * 
+	 * @return array
+	 */
+	public function __debugInfo()
+	{
+		return (array) $this->data_;
+	}
+
+	/**
 	 * As array
 	 * 
 	 * @see toArray
