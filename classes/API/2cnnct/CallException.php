@@ -16,16 +16,41 @@ class API_2cnnct_CallException extends Exception
 	protected $trace_ = null;
 
 	/**
+	 * Extra
+	 * 
+	 * @var array
+	 */
+	protected $extra_ = null;
+
+	/**
 	 * Constructor
 	 * 
 	 * @param int $code
 	 * @param string $errorMessage
 	 * @param array $trace
+	 * @param array $extra
 	 */
-	public function __construct($code, $errorMessage, $trace = null)
+	public function __construct($code, $errorMessage, $trace = null, array $extra = null)
 	{
 		parent::__construct($errorMessage, $code);
 		$this->trace_ = $trace;
+		$this->extra_ = $extra;
+	}
+
+	/**
+	 * Get extra
+	 * 
+	 * @param string $key
+	 * @param mixed $default
+	 * @return array
+	 */
+	public function extra($key = null, $default = null)
+	{
+		if (func_num_args() > 0)
+		{
+			return Arr::get( (array) $this->extra_, $key, $default);
+		}
+		return (array) $this->extra_;
 	}
 
 	/**

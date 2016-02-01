@@ -216,7 +216,8 @@ class API_2cnnct_API
 				throw new API_2cnnct_CallException(
 					property_exists($json, 'errorCode') ? $json->errorCode : 500,
 					property_exists($json, 'errorMessage') ? $json->errorMessage : 'Error',
-					property_exists($json, 'errorTrace') ? $json->errorTrace : null
+					property_exists($json, 'errorTrace') ? $json->errorTrace : null,
+					property_exists($json, 'extra') ? (array) $json->extra : null
 				);
 			}
 			else if ( ! property_exists($json, 'result'))
@@ -420,7 +421,8 @@ class API_2cnnct_API
 				throw new API_2cnnct_CallException(
 					property_exists($json, 'errorCode') ? $json->errorCode : 500,
 					property_exists($json, 'errorMessage') ? $json->errorMessage : 'Error',
-					property_exists($json, 'errorTrace') ? $json->errorTrace : null
+					property_exists($json, 'errorTrace') ? $json->errorTrace : null,
+					property_exists($json, 'extra') ? (array) $json->extra : null
 				);
 			}
 			else if ( ! property_exists($json, 'result'))
@@ -581,7 +583,8 @@ class API_2cnnct_API
 				throw new API_2cnnct_CallException(
 					property_exists($json, 'errorCode') ? $json->errorCode : 500,
 					property_exists($json, 'errorMessage') ? $json->errorMessage : 'Error',
-					property_exists($json, 'errorTrace') ? $json->errorTrace : null
+					property_exists($json, 'errorTrace') ? $json->errorTrace : null,
+					property_exists($json, 'extra') ? (array) $json->extra : null
 				);
 			}
 			else if ( ! property_exists($json, 'result'))
