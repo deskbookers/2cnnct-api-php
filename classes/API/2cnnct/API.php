@@ -13,36 +13,21 @@ class API_2cnnct_API
 	 * 
 	 * @var API_2cnnct_API
 	 */
-	static protected $instance_ = null;
+	protected static $instance_ = null;
 
 	/**
 	 * Verify peer
 	 * 
 	 * @var bool
 	 */
-	static protected $verifyPeer = true;
+	protected static $verifyPeer = true;
 
 	/**
-	 * Set verify peer
+	 * Referer
 	 * 
-	 * @param bool $value
+	 * @var string
 	 */
-	public static function setVerifyPeer($value)
-	{
-		static::$verifyPeer = (bool) $value;
-	}
-
-	/**
-	 * Instance
-	 * 
-	 * @param API_2cnnct_API $instance
-	 * @return API_2cnnct_API
-	 */
-	static public function instance(API_2cnnct_API $instance = null)
-	{
-		if ($instance !== null) self::$instance_ = $instance;
-		return self::$instance_;
-	}
+	protected static $referer_ = null;
 
 	/**
 	 * Public key
@@ -119,6 +104,55 @@ class API_2cnnct_API
 	}
 
 	/**
+	 * Factory
+	 * 
+	 * @param string $publicKey
+	 * @param string $privateKey
+	 * @param string $apiHost
+	 * @param int $resellerID
+	 * @param int $apiVersion
+	 * @param string $locale
+	 * @param string $format
+	 * @param API_2cnnct_Cache $cache
+	 */
+	public static function factory($publicKey, $privateKey, $apiHost, $resellerID, $apiVersion = 1, $locale = null, $format = null, API_2cnnct_Cache $cache = null)
+	{
+		return new self($publicKey, $privateKey, $apiHost, $resellerID, $apiVersion, $locale, $format, $cache);
+	}
+
+	/**
+	 * Instance
+	 * 
+	 * @param API_2cnnct_API $instance
+	 * @return API_2cnnct_API
+	 */
+	public static function instance(API_2cnnct_API $instance = null)
+	{
+		if ($instance !== null) self::$instance_ = $instance;
+		return self::$instance_;
+	}
+
+	/**
+	 * Set verify peer
+	 * 
+	 * @param bool $value
+	 */
+	public static function setVerifyPeer($value)
+	{
+		static::$verifyPeer = (bool) $value;
+	}
+
+	/**
+	 * Set referer
+	 * 
+	 * @param string|null $referer
+	 */
+	public static function setReferer($referer)
+	{
+		static::$referer_ = $referer === null ? null : (string) $referer;
+	}
+
+	/**
 	 * Set locale
 	 * 
 	 * @param string $locale
@@ -131,28 +165,11 @@ class API_2cnnct_API
 	}
 
 	/**
-	 * Factory
-	 * 
-	 * @param string $publicKey
-	 * @param string $privateKey
-	 * @param string $apiHost
-	 * @param int $resellerID
-	 * @param int $apiVersion
-	 * @param string $locale
-	 * @param string $format
-	 * @param API_2cnnct_Cache $cache
-	 */
-	static public function factory($publicKey, $privateKey, $apiHost, $resellerID, $apiVersion = 1, $locale = null, $format = null, API_2cnnct_Cache $cache = null)
-	{
-		return new self($publicKey, $privateKey, $apiHost, $resellerID, $apiVersion, $locale, $format, $cache);
-	}
-
-	/**
 	 * Prepare curl
 	 * 
 	 * @return cURL resource
 	 */
-	static protected function prepareCurl()
+	protected static function prepareCurl()
 	{
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, static::$verifyPeer);
@@ -169,7 +186,7 @@ class API_2cnnct_API
 	 * @param string $locale
 	 * @return string Login URL
 	 */
-	static public function getLoginUrlForResellerCollection($apiHost, $resellerCollectionId, $returnUrl, $apiVersion = 1, $locale = null)
+	public static function getLoginUrlForResellerCollection($apiHost, $resellerCollectionId, $returnUrl, $apiVersion = 1, $locale = null)
 	{
 
 		// Prepare data
@@ -191,6 +208,11 @@ class API_2cnnct_API
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($apiHost, $ch) . $uri);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER,
+			static::$referer_ === null ? [] : [
+				'Referer: ' . static::$referer_,
+			]
+		);
 		$response = curl_exec($ch);
 		$curlInfo = curl_getinfo($ch);
 		curl_close($ch);
@@ -375,10 +397,16 @@ class API_2cnnct_API
 		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($this->apiHost_, $ch, $headers) . $uri);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, Arr::merge($headers, [
-			'Timestamp: ' . ($timestamp = time()),
-			'Authenticate: ' . $this->publicKey_ . ':' . $this->buildCheckHash('POST', $timestamp, $uri, $data),
-		]));
+		curl_setopt($ch, CURLOPT_HTTPHEADER, Arr::merge(
+			$headers,
+			[
+				'Timestamp: ' . ($timestamp = time()),
+				'Authenticate: ' . $this->publicKey_ . ':' . $this->buildCheckHash('POST', $timestamp, $uri, $data),
+			],
+			static::$referer_ === null ? [] : [
+				'Referer: ' . static::$referer_,
+			]
+		));
 		$response = curl_exec($ch);
 		$curlInfo = curl_getinfo($ch);
 		curl_close($ch);
@@ -512,10 +540,16 @@ class API_2cnnct_API
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($this->apiHost_, $ch, $headers) . $uri);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, Arr::merge($headers, [
-			'Timestamp: ' . ($timestamp = time()),
-			'Authenticate: ' . $this->publicKey_ . ':' . $this->buildCheckHash('GET', $timestamp, $uri, []),
-		]));
+		curl_setopt($ch, CURLOPT_HTTPHEADER, Arr::merge(
+			$headers,
+			[
+				'Timestamp: ' . ($timestamp = time()),
+				'Authenticate: ' . $this->publicKey_ . ':' . $this->buildCheckHash('GET', $timestamp, $uri, []),
+			],
+			static::$referer_ === null ? [] : [
+				'Referer: ' . static::$referer_,
+			]
+		));
 		$response = curl_exec($ch);
 		$curlError = null;
 		if ($response === false)
