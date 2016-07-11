@@ -222,7 +222,7 @@ class API_2cnnct_API
 		if ( ! is_object($json))
 		{
 			ksort($curlInfo);
-			Logger::error(tr('Invalid API response format'), null, [
+			Logger::error('Invalid API response format', null, [
 				'response' => $response,
 				'url' => static::prepareApiHost($apiHost) . $uri,
 				'curlInfo' => $curlInfo,
@@ -245,7 +245,7 @@ class API_2cnnct_API
 			else if ( ! property_exists($json, 'result'))
 			{
 				ksort($curlInfo);
-				Logger::error(tr('Invalid API response format'), null, [
+				Logger::error('Invalid API response format', null, [
 					'json' => $json,
 					'url' => static::prepareApiHost($apiHost) . $uri,
 					'curlInfo' => $curlInfo,
@@ -416,7 +416,7 @@ class API_2cnnct_API
 		if ( ! is_object($json))
 		{
 			ksort($curlInfo);
-			Logger::error(tr('Invalid API response format'), null, [
+			Logger::error('Invalid API response format', null, [
 				'response' => $response,
 				'url' => static::prepareApiHost($this->apiHost_) . $uri,
 				'curlInfo' => $curlInfo,
@@ -439,7 +439,7 @@ class API_2cnnct_API
 			else if ( ! property_exists($json, 'result'))
 			{
 				ksort($curlInfo);
-				Logger::error(tr('Invalid API response format'), null, [
+				Logger::error('Invalid API response format', null, [
 					'json' => $json,
 					'url' => static::prepareApiHost($this->apiHost_) . $uri,
 					'curlInfo' => $curlInfo,
@@ -564,7 +564,7 @@ class API_2cnnct_API
 		if ( ! is_object($json))
 		{
 			ksort($curlInfo);
-			Logger::error(tr('Invalid API response format'), null, [
+			Logger::error('Invalid API response format', null, [
 				'url' => static::prepareApiHost($this->apiHost_) . $uri,
 				'response' => $response,
 				'curlError' => $curlError,
@@ -588,7 +588,7 @@ class API_2cnnct_API
 			else if ( ! property_exists($json, 'result'))
 			{
 				ksort($curlInfo);
-				Logger::error(tr('Invalid API response format'), null, [
+				Logger::error('Invalid API response format', null, [
 					'json' => $json,
 					'url' => static::prepareApiHost($this->apiHost_) . $uri,
 					'curlInfo' => $curlInfo,

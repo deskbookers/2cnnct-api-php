@@ -152,7 +152,7 @@ class API_2cnnct_Object implements IteratorAggregate, JsonSerializable, Countabl
 	{
 		if ( ! $this->has($key))
 		{
-			throw new DBException('Undefined property \':property\'', array(':property' => $key));
+			throw new Exception('Undefined property \'' . $key . '\'');
 		}
 		return $this->data_[$key];
 	}
@@ -179,8 +179,11 @@ class API_2cnnct_Object implements IteratorAggregate, JsonSerializable, Countabl
 	 */
 	public function getOrDefault($key, $default = null)
 	{
-		if ( ! $this->has($key)) return $default;
-		else return $this->data_[$key];
+		if ( ! $this->has($key))
+		{
+			return $default;
+		}
+		return $this->data_[$key];
 	}
 
 	/**
