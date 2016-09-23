@@ -208,25 +208,12 @@ class API_2cnnct_API
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($apiHost, $ch) . $uri);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
-		curl_setopt($ch, CURLOPT_HEADER, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $sentHeaders = (
 			static::$referer_ === null ? [] : [
 				'Referer: ' . static::$referer_,
 			]
 		));
-		$headers = [];
-		$curlError = null;
-		$response = curl_exec($ch);
-		if ($response === false)
-		{
-			$curlError = curl_error($ch);
-		}
-		else
-		{
-			static::parseResponse($response, $headers);
-		}
-		$curlInfo = curl_getinfo($ch);
-		curl_close($ch);
+		static::parseResponse($ch, $response, $headers, $curlError, $curlInfo);
 
 		// Decode response
 		$json = json_decode($response);
@@ -425,19 +412,7 @@ class API_2cnnct_API
 				'Referer: ' . static::$referer_,
 			]
 		));
-		$headers = [];
-		$curlError = null;
-		$response = curl_exec($ch);
-		if ($response === false)
-		{
-			$curlError = curl_error($ch);
-		}
-		else
-		{
-			static::parseResponse($response, $headers);
-		}
-		$curlInfo = curl_getinfo($ch);
-		curl_close($ch);
+		static::parseResponse($ch, $response, $headers, $curlError, $curlInfo);
 
 		// Decode response
 		$json = json_decode($response);
@@ -541,26 +516,44 @@ class API_2cnnct_API
 	/**
 	 * Parse response
 	 * 
+	 * @param resource $ch Curl resource
 	 * @param string & $response
 	 * @param array & $headers
 	 */
-	protected static function parseResponse(&$response, & $headers = null)
+	protected static function parseResponse(
+		$ch,
+		&$response,
+		&$headers,
+		&$error,
+		&$info
+	)
 	{
-		$headers = [];
-		$parts = explode("\r\n\r\n", $response, 2);
-		if (count($parts) >= 2)
+		// Extra options
+		curl_setopt($ch, CURLOPT_HEADER, true);
+
+		// Execute request and retrieve (meta) data
+		$response = curl_exec($ch);
+		$info = curl_getinfo($ch);
+		$error = null;
+		if ($response === false)
 		{
-			$response = $parts[1];
+			$error = curl_error($ch);
 		}
-		if (count($parts) >= 1)
+		curl_close($ch);
+
+		// Remove header
+		$headers = [];
+		$headerLength = (int) Arr::get($info, 'header_size', 0);
+		$rawHeaders = substr($response, 0, $headerLength);
+		$response = substr($response, $headerLength);
+
+		// Parse header
+		foreach (explode("\n", str_replace("\r", '', $rawHeaders)) as $line)
 		{
-			foreach (explode("\n", str_replace("\r", '', $parts[0])) as $line)
+			$kv = array_map('trim', explode(':', $line, 2));
+			if (count($kv) == 2)
 			{
-				$kv = array_map('trim', explode(':', $line, 2));
-				if (count($kv) == 2)
-				{
-					$headers[$kv[0]] = $kv[1];
-				}
+				$headers[$kv[0]] = $kv[1];
 			}
 		}
 	}
@@ -601,7 +594,6 @@ class API_2cnnct_API
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($this->apiHost_, $ch, $headers) . $uri);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
-		curl_setopt($ch, CURLOPT_HEADER, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $sentHeaders = Arr::merge(
 			$headers,
 			[
@@ -612,19 +604,7 @@ class API_2cnnct_API
 				'Referer: ' . static::$referer_,
 			]
 		));
-		$response = curl_exec($ch);
-		$headers = [];
-		$curlError = null;
-		if ($response === false)
-		{
-			$curlError = curl_error($ch);
-		}
-		else
-		{
-			static::parseResponse($response, $headers);
-		}
-		$curlInfo = curl_getinfo($ch);
-		curl_close($ch);
+		static::parseResponse($ch, $response, $headers, $curlError, $curlInfo);
 
 		// Decode response
 		$json = json_decode($response);
