@@ -34,21 +34,21 @@ class API_2cnnct_API
 	 * 
 	 * @var string
 	 */
-	private $publicKey_ = NULL;
+	private $publicKey_ = null;
 
 	/**
 	 * Private key
 	 * 
 	 * @var string
 	 */
-	private $privateKey_ = NULL;
+	private $privateKey_ = null;
 
 	/**
 	 * API url
 	 * 
 	 * @var string
 	 */
-	private $apiHost_ = NULL;
+	private $apiHost_ = null;
 
 	/**
 	 * API version
@@ -62,7 +62,7 @@ class API_2cnnct_API
 	 * 
 	 * @var string
 	 */
-	private $locale_ = NULL;
+	private $locale_ = null;
 
 	/**
 	 * Format
@@ -208,12 +208,23 @@ class API_2cnnct_API
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($apiHost, $ch) . $uri);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER,
+		curl_setopt($ch, CURLOPT_HEADER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $sentHeaders = (
 			static::$referer_ === null ? [] : [
 				'Referer: ' . static::$referer_,
 			]
-		);
+		));
+		$headers = [];
+		$curlError = null;
 		$response = curl_exec($ch);
+		if ($response === false)
+		{
+			$curlError = curl_error($ch);
+		}
+		else
+		{
+			static::parseResponse($response, $headers);
+		}
 		$curlInfo = curl_getinfo($ch);
 		curl_close($ch);
 
@@ -225,7 +236,10 @@ class API_2cnnct_API
 			Logger::error('[APIC-1001] Invalid API response format', null, [
 				'response' => $response,
 				'url' => static::prepareApiHost($apiHost) . $uri,
+				'curlError' => $curlError,
 				'curlInfo' => $curlInfo,
+				'sentHeaders' => $sentHeaders,
+				'receivedHeaders' => $headers,
 			]);
 			unset($response);
 			throw new API_2cnnct_CallException(500, '[APIC-1002] Invalid API response format');
@@ -248,7 +262,10 @@ class API_2cnnct_API
 				Logger::error('[APIC-1003] Invalid API response format', null, [
 					'json' => $json,
 					'url' => static::prepareApiHost($apiHost) . $uri,
+					'curlError' => $curlError,
 					'curlInfo' => $curlInfo,
+					'sentHeaders' => $sentHeaders,
+					'receivedHeaders' => $headers,
 				]);
 				throw new API_2cnnct_CallException(500, '[APIC-1004] Invalid API response format');
 			}
@@ -397,7 +414,8 @@ class API_2cnnct_API
 		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($this->apiHost_, $ch, $headers) . $uri);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, Arr::merge(
+		curl_setopt($ch, CURLOPT_HEADER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $sentHeaders = Arr::merge(
 			$headers,
 			[
 				'Timestamp: ' . ($timestamp = time()),
@@ -407,7 +425,17 @@ class API_2cnnct_API
 				'Referer: ' . static::$referer_,
 			]
 		));
+		$headers = [];
+		$curlError = null;
 		$response = curl_exec($ch);
+		if ($response === false)
+		{
+			$curlError = curl_error($ch);
+		}
+		else
+		{
+			static::parseResponse($response, $headers);
+		}
 		$curlInfo = curl_getinfo($ch);
 		curl_close($ch);
 
@@ -419,7 +447,10 @@ class API_2cnnct_API
 			Logger::error('[APIC-1006] Invalid API response format', null, [
 				'response' => $response,
 				'url' => static::prepareApiHost($this->apiHost_) . $uri,
+				'curlError' => $curlError,
 				'curlInfo' => $curlInfo,
+				'sentHeaders' => $sentHeaders,
+				'receivedHeaders' => $headers,
 			]);
 			unset($response);
 			throw new API_2cnnct_CallException(500, '[APIC-1007] Invalid API response format');
@@ -442,7 +473,10 @@ class API_2cnnct_API
 				Logger::error('[APIC-1008] Invalid API response format', null, [
 					'json' => $json,
 					'url' => static::prepareApiHost($this->apiHost_) . $uri,
+					'curlError' => $curlError,
 					'curlInfo' => $curlInfo,
+					'sentHeaders' => $sentHeaders,
+					'receivedHeaders' => $headers,
 				]);
 				throw new API_2cnnct_CallException(500, '[APIC-1009] Invalid API response format');
 			}
@@ -505,6 +539,33 @@ class API_2cnnct_API
 	}
 
 	/**
+	 * Parse response
+	 * 
+	 * @param string & $response
+	 * @param array & $headers
+	 */
+	protected static function parseResponse(&$response, & $headers = null)
+	{
+		$headers = [];
+		$parts = explode("\r\n\r\n", $response, 2);
+		if (count($parts) >= 2)
+		{
+			$response = $parts[1];
+		}
+		if (count($parts) >= 1)
+		{
+			foreach (explode("\n", str_replace("\r", '', $parts[0])) as $line)
+			{
+				$kv = array_map('trim', explode(':', $line, 2));
+				if (count($kv) == 2)
+				{
+					$headers[$kv[0]] = $kv[1];
+				}
+			}
+		}
+	}
+
+	/**
 	 * Get (internal)
 	 * 
 	 * @param array $fields
@@ -533,14 +594,15 @@ class API_2cnnct_API
 		// URI
 		$uri = '/api/v' . $this->apiVersion_ . '/' . $this->buildUri($uri, $uriParams);
 		$query = http_build_query($data);
-		if (!empty($query)) $uri .= '?' . $query;
+		if ( ! empty($query)) $uri .= '?' . $query;
 
 		// Make request through curl
 		$ch = static::prepareCurl();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_URL, static::prepareApiHost($this->apiHost_, $ch, $headers) . $uri);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, Arr::merge(
+		curl_setopt($ch, CURLOPT_HEADER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $sentHeaders = Arr::merge(
 			$headers,
 			[
 				'Timestamp: ' . ($timestamp = time()),
@@ -551,10 +613,15 @@ class API_2cnnct_API
 			]
 		));
 		$response = curl_exec($ch);
+		$headers = [];
 		$curlError = null;
 		if ($response === false)
 		{
 			$curlError = curl_error($ch);
+		}
+		else
+		{
+			static::parseResponse($response, $headers);
 		}
 		$curlInfo = curl_getinfo($ch);
 		curl_close($ch);
@@ -569,6 +636,8 @@ class API_2cnnct_API
 				'response' => $response,
 				'curlError' => $curlError,
 				'curlInfo' => $curlInfo,
+				'sentHeaders' => $sentHeaders,
+				'receivedHeaders' => $headers,
 			]);
 			unset($response);
 			throw new API_2cnnct_CallException(500, '[APIC-1012] Invalid API response format');
@@ -591,7 +660,10 @@ class API_2cnnct_API
 				Logger::error('[APIC-1013] Invalid API response format', null, [
 					'json' => $json,
 					'url' => static::prepareApiHost($this->apiHost_) . $uri,
+					'curlError' => $curlError,
 					'curlInfo' => $curlInfo,
+					'sentHeaders' => $sentHeaders,
+					'receivedHeaders' => $headers,
 				]);
 				throw new API_2cnnct_CallException(500, '[APIC-1014] Invalid API response format');
 			}
