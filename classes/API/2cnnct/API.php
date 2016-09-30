@@ -10,77 +10,77 @@ class API_2cnnct_API
 {
 	/**
 	 * Instance
-	 * 
+	 *
 	 * @var API_2cnnct_API
 	 */
 	protected static $instance_ = null;
 
 	/**
 	 * Verify peer
-	 * 
+	 *
 	 * @var bool
 	 */
 	protected static $verifyPeer = true;
 
 	/**
 	 * Referer
-	 * 
+	 *
 	 * @var string
 	 */
 	protected static $referer_ = null;
 
 	/**
 	 * Public key
-	 * 
+	 *
 	 * @var string
 	 */
 	private $publicKey_ = null;
 
 	/**
 	 * Private key
-	 * 
+	 *
 	 * @var string
 	 */
 	private $privateKey_ = null;
 
 	/**
 	 * API url
-	 * 
+	 *
 	 * @var string
 	 */
 	private $apiHost_ = null;
 
 	/**
 	 * API version
-	 * 
+	 *
 	 * @var int
 	 */
 	private $apiVersion_ = 1;
 
 	/**
 	 * Locale
-	 * 
+	 *
 	 * @var string
 	 */
 	private $locale_ = null;
 
 	/**
 	 * Format
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $format_ = 'json';
 
 	/**
 	 * Cache
-	 * 
+	 *
 	 * @var API_2cnnct_Cache
 	 */
 	protected $cache_ = null;
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param string $publicKey
 	 * @param string $privateKey
 	 * @param string $apiHost
@@ -105,7 +105,7 @@ class API_2cnnct_API
 
 	/**
 	 * Factory
-	 * 
+	 *
 	 * @param string $publicKey
 	 * @param string $privateKey
 	 * @param string $apiHost
@@ -122,7 +122,7 @@ class API_2cnnct_API
 
 	/**
 	 * Instance
-	 * 
+	 *
 	 * @param API_2cnnct_API $instance
 	 * @return API_2cnnct_API
 	 */
@@ -134,7 +134,7 @@ class API_2cnnct_API
 
 	/**
 	 * Set verify peer
-	 * 
+	 *
 	 * @param bool $value
 	 */
 	public static function setVerifyPeer($value)
@@ -144,7 +144,7 @@ class API_2cnnct_API
 
 	/**
 	 * Set referer
-	 * 
+	 *
 	 * @param string|null $referer
 	 */
 	public static function setReferer($referer)
@@ -154,7 +154,7 @@ class API_2cnnct_API
 
 	/**
 	 * Set locale
-	 * 
+	 *
 	 * @param string $locale
 	 * @return This
 	 */
@@ -166,7 +166,7 @@ class API_2cnnct_API
 
 	/**
 	 * Prepare curl
-	 * 
+	 *
 	 * @return cURL resource
 	 */
 	protected static function prepareCurl()
@@ -264,7 +264,7 @@ class API_2cnnct_API
 
 	/**
 	 * Map API host
-	 * 
+	 *
 	 * @param string $host
 	 * @param array $headers
 	 * @param resource $ch
@@ -299,9 +299,9 @@ class API_2cnnct_API
 
 	/**
 	 * Build check data
-	 * 
+	 *
 	 * Build check data for a method, timestamp and URI.
-	 * 
+	 *
 	 * @param string $method
 	 * @param int $timestamp
 	 * @param string $uri
@@ -315,7 +315,7 @@ class API_2cnnct_API
 
 	/**
 	 * Build check hash
-	 * 
+	 *
 	 * @param string $method
 	 * @param int $timestamp
 	 * @param string $uri
@@ -329,7 +329,7 @@ class API_2cnnct_API
 
 	/**
 	 * Build uri
-	 * 
+	 *
 	 * @param string $uri
 	 * @param array $uriParams
 	 * @return string
@@ -352,9 +352,9 @@ class API_2cnnct_API
 		return $uri;
 	}
 
-    /**
+	/**
 	 * Post
-	 * 
+	 *
 	 * @param array $data
 	 * @param string $uri
 	 * @param array $uriParams
@@ -364,10 +364,10 @@ class API_2cnnct_API
 	{
 		return $this->convert($this->post_($data, $uri, $uriParams));
 	}
-	
+
 	/**
 	 * Post (internal)
-	 * 
+	 *
 	 * @param array $data
 	 * @param string $uri
 	 * @param array $uriParams
@@ -463,7 +463,7 @@ class API_2cnnct_API
 
 	/**
 	 * Get cached
-	 * 
+	 *
 	 * @param array $fields
 	 * @param string $uri
 	 * @param array $uriParams
@@ -484,7 +484,7 @@ class API_2cnnct_API
 
 		// Cache name
 		$cacheName = $this->resellerID_ . '-' . $this->buildUri($uri, $uriParams) . '(' . json_encode($fields) . ')(' . json_encode($data) . ')';
-		
+
 		// Has cache?
 		if ($cache->hasCache($cacheName, $lifetime))
 		{
@@ -501,7 +501,7 @@ class API_2cnnct_API
 
 	/**
 	 * Get
-	 * 
+	 *
 	 * @param array $fields
 	 * @param string $uri
 	 * @param array $uriParams
@@ -515,7 +515,7 @@ class API_2cnnct_API
 
 	/**
 	 * Parse response
-	 * 
+	 *
 	 * @param resource $ch Curl resource
 	 * @param string & $response
 	 * @param array & $headers
@@ -560,7 +560,7 @@ class API_2cnnct_API
 
 	/**
 	 * Get (internal)
-	 * 
+	 *
 	 * @param array $fields
 	 * @param string $uri
 	 * @param array $uriParams
@@ -655,7 +655,7 @@ class API_2cnnct_API
 
 	/**
 	 * Convert
-	 * 
+	 *
 	 * @param mixed $data
 	 * @return mixed
 	 */
