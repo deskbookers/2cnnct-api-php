@@ -195,10 +195,6 @@ class API_2cnnct_API
 			'returnUrl' => json_encode( (string) $returnUrl),
 		];
 		$data['__i18n'] = json_encode($locale);
-		if (is_callable('Logger::longo') && Logger::longo())
-		{
-			$data['__longo'] = json_encode(Logger::longo()->tags());
-		}
 
 		// URI
 		$uri = '/api/v' . $apiVersion . '/getLoginResellerCollectionUrl?' . http_build_query($data);
@@ -384,10 +380,6 @@ class API_2cnnct_API
 		$data['__i18n'] = json_encode($this->locale_);
 		$data['__format'] = json_encode($this->format_);
 		$data['__resellerID'] = json_encode($this->resellerID_);
-		if (is_callable('Logger::longo') && Logger::longo())
-		{
-			$data['__longo'] = json_encode(Logger::longo()->tags());
-		}
 
 		// URI
 		$uri = '/api/v' . $this->apiVersion_ . '/' . $this->buildUri($uri, $uriParams);
@@ -579,10 +571,6 @@ class API_2cnnct_API
 		$data['__i18n'] = json_encode($this->locale_);
 		$data['__format'] = json_encode($this->format_);
 		$data['__resellerID'] = json_encode($this->resellerID_);
-		if (is_callable('Logger::longo') && Logger::longo())
-		{
-			$data['__longo'] = json_encode(Logger::longo()->tags());
-		}
 
 		// URI
 		$uri = '/api/v' . $this->apiVersion_ . '/' . $this->buildUri($uri, $uriParams);
