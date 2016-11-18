@@ -4,7 +4,7 @@
  * 2cnnct API
  *
  * @package  api
- * @author   Leon van der Veen <leon@deskbookers.com>
+ * @author	 Leon van der Veen <leon@deskbookers.com>
  */
 class API_2cnnct_API
 {
@@ -290,7 +290,8 @@ class API_2cnnct_API
 			return $mapping;
 		}
 
-		return 'https://' . $host;
+		$protocol = Env::getBool('TLS') ? 'https://' : 'http://';
+		return $protocol . $host;
 	}
 
 	/**
