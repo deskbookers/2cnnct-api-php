@@ -4,7 +4,7 @@
  * 2cnnct API
  *
  * @package  api
- * @author	 Leon van der Veen <leon@deskbookers.com>
+ * @author   Leon van der Veen <leon@deskbookers.com>
  */
 class API_2cnnct_API
 {
@@ -188,7 +188,6 @@ class API_2cnnct_API
 	 */
 	public static function getLoginUrlForResellerCollection($apiHost, $resellerCollectionId, $returnUrl, $apiVersion = 1, $locale = null)
 	{
-
 		// Prepare data
 		$data = [
 			'resellerCollectionID' => json_encode( (int) $resellerCollectionId),
@@ -513,7 +512,7 @@ class API_2cnnct_API
 	 * @param string & $response
 	 * @param array & $headers
 	 */
-	protected static function parseResponse(
+	public static function parseResponse(
 		$ch,
 		&$response,
 		&$headers,
