@@ -450,13 +450,7 @@ class API_2cnnct_API
         $startTime = microtime(true);
 
         // Prepare data
-        $data = (array) $data;
-        foreach ($data as $key => $value) {
-            $data[$key] = json_encode($value);
-        }
-        $data['__i18n'] = json_encode($this->locale_);
-        $data['__format'] = json_encode($this->format_);
-        $data['__resellerID'] = json_encode($this->resellerID_);
+        $data = $this->prepareData($data);
 
         // URI
         $uri = '/api/v' . $this->apiVersion_ . '/'
@@ -591,11 +585,12 @@ class API_2cnnct_API
             . '/api/v' . $this->apiVersion_ . '/'
             . $this->buildUri($uri, $uriParams)
         ;
+        $query = http_build_query($this->prepareData($data, $fields));
+        if (strlen($query) > 0) {
+            $url .= '?' . $query;
+        }
         curl_close($ch);
-        $cacheName = $this->resellerID_ . '-'
-            . $url
-            . '(' . json_encode($fields) . ')(' . json_encode($data) . ')'
-        ;
+        $cacheName = 'getCached::' . $url;
 
         // Has cache?
         if ($cache->hasCache($cacheName, $lifetime)) {
@@ -755,6 +750,30 @@ class API_2cnnct_API
     }
 
     /**
+     * Prepare data
+     *
+     * @param array $data
+     * @return array
+     */
+    protected function prepareData(array $data = null, array $fields = null)
+    {
+        $data = (array) $data;
+        foreach ($data as $key => $value) {
+            $data[$key] = json_encode($value);
+        }
+
+        if ($fields !== null) {
+            $data['__fields'] = json_encode($fields);
+        }
+
+        $data['__i18n'] = json_encode($this->locale_);
+        $data['__format'] = json_encode($this->format_);
+        $data['__resellerID'] = json_encode($this->resellerID_);
+
+        return $data;
+    }
+
+    /**
      * Get (internal)
      *
      * @param array $fields
@@ -772,14 +791,7 @@ class API_2cnnct_API
         $startTime = microtime(true);
 
         // Prepare data
-        $data = (array) $data;
-        foreach ($data as $key => $value) {
-            $data[$key] = json_encode($value);
-        }
-        $data['__fields'] = json_encode($fields);
-        $data['__i18n'] = json_encode($this->locale_);
-        $data['__format'] = json_encode($this->format_);
-        $data['__resellerID'] = json_encode($this->resellerID_);
+        $data = $this->prepareData($data, $fields);
 
         // URI
         $uri = '/api/v' . $this->apiVersion_ . '/'
