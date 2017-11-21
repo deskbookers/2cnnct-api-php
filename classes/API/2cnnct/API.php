@@ -30,6 +30,13 @@ class API_2cnnct_API
     protected static $referer_ = null;
 
     /**
+     * Global extra data
+     *
+     * @var mixed[string]
+     */
+    protected static $extraData_ = [];
+
+    /**
      * Public key
      *
      * @var string
@@ -164,6 +171,27 @@ class API_2cnnct_API
             self::$instance_ = $instance;
         }
         return self::$instance_;
+    }
+
+    /**
+     * Set extra data
+     *
+     * @param string $key
+     * @param mixed $value
+     */
+    public static function setExtraData($key, $value)
+    {
+        static::$extraData_[$key] = $value;
+    }
+
+    /**
+     * Unset extra data
+     *
+     * @param string $key
+     */
+    public static function unsetExtraData($key)
+    {
+        unset(static::$extraData_[$key]);
     }
 
     /**
@@ -757,7 +785,7 @@ class API_2cnnct_API
      */
     protected function prepareData(array $data = null, array $fields = null)
     {
-        $data = (array) $data;
+        $data = Arr::merge(static::$extraData_, (array) $data);
         foreach ($data as $key => $value) {
             $data[$key] = json_encode($value);
         }
