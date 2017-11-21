@@ -258,11 +258,14 @@ class API_2cnnct_API
         $startTime = microtime(true);
 
         // Prepare data
-        $data = [
-            'resellerCollectionID' => json_encode((int) $resellerCollectionId),
-            'returnUrl' => json_encode((string) $returnUrl),
-        ];
-        $data['__i18n'] = json_encode($locale);
+        $data = array_map(
+            'json_encode',
+            Arr::merge(static::$extraData_, [
+                'resellerCollectionID' => (int) $resellerCollectionId,
+                'returnUrl' => (string) $returnUrl,
+                '__i18n' => $locale,
+            ])
+        );
 
         // URI
         $uri = '/api/v' . $apiVersion . '/getLoginResellerCollectionUrl?'
@@ -299,14 +302,18 @@ class API_2cnnct_API
         $json = json_decode($response);
         if (! is_object($json)) {
             ksort($curlInfo);
-            Logger::error('[APIC-1001] Invalid API response format', null, [
-                'response' => $response,
-                'url' => static::prepareApiHost($apiHost) . $uri,
-                'curlError' => $curlError,
-                'curlInfo' => $curlInfo,
-                'sentHeaders' => $sentHeaders,
-                'receivedHeaders' => $headers,
-            ]);
+            Logger::error(
+                '[APIC-1001] Invalid API response format',
+                null,
+                [
+                    'response' => $response,
+                    'url' => $url,
+                    'curlError' => $curlError,
+                    'curlInfo' => $curlInfo,
+                    'sentHeaders' => $sentHeaders,
+                    'receivedHeaders' => $headers,
+                ]
+            );
             unset($response);
             throw new API_2cnnct_CallException(
                 500,
@@ -326,19 +333,23 @@ class API_2cnnct_API
                         ? $json->errorTrace
                         : null,
                     property_exists($json, 'extra')
-                    ? (array) $json->extra
-                    : null
+                        ? (array) $json->extra
+                        : null
                 );
             } else if (! property_exists($json, 'result')) {
                 ksort($curlInfo);
-                Logger::error('[APIC-1003] Invalid API response format', null, [
-                    'json' => $json,
-                    'url' => static::prepareApiHost($apiHost) . $uri,
-                    'curlError' => $curlError,
-                    'curlInfo' => $curlInfo,
-                    'sentHeaders' => $sentHeaders,
-                    'receivedHeaders' => $headers,
-                ]);
+                Logger::error(
+                    '[APIC-1003] Invalid API response format',
+                    null,
+                    [
+                        'json' => $json,
+                        'url' => $url,
+                        'curlError' => $curlError,
+                        'curlInfo' => $curlInfo,
+                        'sentHeaders' => $sentHeaders,
+                        'receivedHeaders' => $headers,
+                    ]
+                );
                 throw new API_2cnnct_CallException(
                     500,
                     '[APIC-1004] Invalid API response format'
@@ -527,14 +538,18 @@ class API_2cnnct_API
         $json = json_decode($response);
         if (! is_object($json)) {
             ksort($curlInfo);
-            Logger::error('[APIC-1006] Invalid API response format', null, [
-                'response' => $response,
-                'url' => static::prepareApiHost($this->apiHost_) . $uri,
-                'curlError' => $curlError,
-                'curlInfo' => $curlInfo,
-                'sentHeaders' => $sentHeaders,
-                'receivedHeaders' => $headers,
-            ]);
+            Logger::error(
+                '[APIC-1006] Invalid API response format',
+                null,
+                [
+                    'response' => $response,
+                    'url' => $url,
+                    'curlError' => $curlError,
+                    'curlInfo' => $curlInfo,
+                    'sentHeaders' => $sentHeaders,
+                    'receivedHeaders' => $headers,
+                ]
+            );
             unset($response);
             throw new API_2cnnct_CallException(
                 500,
@@ -559,14 +574,18 @@ class API_2cnnct_API
                 );
             } else if (! property_exists($json, 'result')) {
                 ksort($curlInfo);
-                Logger::error('[APIC-1008] Invalid API response format', null, [
-                    'json' => $json,
-                    'url' => static::prepareApiHost($this->apiHost_) . $uri,
-                    'curlError' => $curlError,
-                    'curlInfo' => $curlInfo,
-                    'sentHeaders' => $sentHeaders,
-                    'receivedHeaders' => $headers,
-                ]);
+                Logger::error(
+                    '[APIC-1008] Invalid API response format',
+                    null,
+                    [
+                       'json' => $json,
+                        'url' => $url,
+                        'curlError' => $curlError,
+                        'curlInfo' => $curlInfo,
+                        'sentHeaders' => $sentHeaders,
+                        'receivedHeaders' => $headers,
+                    ]
+                );
                 throw new API_2cnnct_CallException(
                     500,
                     '[APIC-1009] Invalid API response format'
@@ -866,14 +885,18 @@ class API_2cnnct_API
         $json = json_decode($response);
         if (! is_object($json)) {
             ksort($curlInfo);
-            Logger::error('[APIC-1011] Invalid API response format', null, [
-                'url' => static::prepareApiHost($this->apiHost_) . $uri,
-                'response' => $response,
-                'curlError' => $curlError,
-                'curlInfo' => $curlInfo,
-                'sentHeaders' => $sentHeaders,
-                'receivedHeaders' => $headers,
-            ]);
+            Logger::error(
+                '[APIC-1011] Invalid API response format',
+                null,
+                [
+                    'url' => $url,
+                    'response' => $response,
+                    'curlError' => $curlError,
+                    'curlInfo' => $curlInfo,
+                    'sentHeaders' => $sentHeaders,
+                    'receivedHeaders' => $headers,
+                ]
+            );
             unset($response);
             throw new API_2cnnct_CallException(
                 500,
@@ -898,14 +921,17 @@ class API_2cnnct_API
                 );
             } else if (! property_exists($json, 'result')) {
                 ksort($curlInfo);
-                Logger::error('[APIC-1013] Invalid API response format', null, [
-                    'json' => $json,
-                    'url' => static::prepareApiHost($this->apiHost_) . $uri,
-                    'curlError' => $curlError,
-                    'curlInfo' => $curlInfo,
-                    'sentHeaders' => $sentHeaders,
-                    'receivedHeaders' => $headers,
-                ]);
+                Logger::error('[APIC-1013] Invalid API response format',
+                    null,
+                    [
+                        'json' => $json,
+                        'url' => $url,
+                        'curlError' => $curlError,
+                        'curlInfo' => $curlInfo,
+                        'sentHeaders' => $sentHeaders,
+                        'receivedHeaders' => $headers,
+                    ]
+                );
                 throw new API_2cnnct_CallException(
                     500,
                     '[APIC-1014] Invalid API response format'
